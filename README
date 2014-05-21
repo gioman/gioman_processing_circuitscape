@@ -1,0 +1,19 @@
+Circuitscape for Processing
+---------------------------
+Circuitscape is a free software package that borrows algorithms from electronic
+circuit theory to predict connectivity in heterogeneous landscapes. Its most
+common applications include modeling movement and gene flow of plants and
+animals, as well as identifying areas important for connectivity conservation.
+Circuit theory complements commonly-used connectivity models because of its
+connections to random walk theory and its ability to simultaneously evaluate
+contributions of multiple dispersal pathways.
+
+Processing (former SEXTANTE) is a geoprocessing environment that can be used to
+call native and third party algorithms from QGIS, making your spatial analysis
+tasks more productive and easy to accomplish.
+
+This plugin implements Circuitscape provider for QGIS Processing framework.
+
+Developed for Faunalia (http://faunalia.it) funded by Prof. António Mira
+(University of Évora, Portugal, Unidade de Biologia da Conservação) and
+Dr. Rosana Peixoto
