@@ -1,0 +1,20 @@
+[general]
+name=Circuitscape for Processing
+description=Predict connectivity in heterogeneous landscapes
+about=Circuitscape is a free software package that borrows algorithms from electronic circuit theory to predict connectivity in heterogeneous landscapes. Its most common applications include modeling movement and gene flow of plants and animals, as well as identifying areas important for connectivity conservation
+category=Plugins
+version=0.1.0
+qgisMinimumVersion=2.0
+
+icon=icons/circuitscape.png
+tags=analysis,processing,landscape
+
+author=Alexander Bruy
+email=alexander.bruy@gmail.com
+
+homepage=
+tracker=
+repository=
+
+experimental=True
+deprecated=False
