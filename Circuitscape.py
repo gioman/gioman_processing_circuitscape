@@ -35,6 +35,11 @@ from processing.core.GeoAlgorithm import GeoAlgorithm
 from processing.core.GeoAlgorithmExecutionException import \
     GeoAlgorithmExecutionException
 
+from processing.parameters.ParameterRaster import ParameterRaster
+from processing.outputs.OutputRaster import OutputRaster
+
+from CircuitscapeUtils import CircuitscapeUtils
+
 
 class Circuitscape(GeoAlgorithm):
 
@@ -43,4 +48,4 @@ class Circuitscape(GeoAlgorithm):
         self.group = 'Circuitscape'
 
     def processAlgorithm(self, progress):
-        pass
+        commands = ['csrun.py', iniPath]

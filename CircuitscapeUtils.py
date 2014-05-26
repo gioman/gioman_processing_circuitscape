@@ -1,0 +1,138 @@
+# -*- coding: utf-8 -*-
+
+"""
+***************************************************************************
+    CircuitscapeUtils.py
+    ---------------------
+    Date                 : May 2014
+    Copyright            : (C) 2014 by Alexander Bruy
+    Email                : alexander dot bruy at gmail dot com
+***************************************************************************
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************
+"""
+
+__author__ = 'Alexander Bruy'
+__date__ = 'May 2014'
+__copyright__ = '(C) 2014, Alexander Bruy'
+
+# This will get replaced with a git SHA1 when you do a git archive
+
+__revision__ = '$Format:%H$'
+
+import os
+import subprocess
+import ConfigParser
+
+from qgis.core import QgsApplication
+
+from processing.core.ProcessingLog import ProcessingLog
+from processing.core.ProcessingConfig import ProcessingConfig
+from processing.tools.system import *
+
+class CircuitscapeUtils:
+
+    def _version(self):
+        import circuitscape
+        return circuitscape.__version__
+
+    @staticmethod
+    def writeConfiguration():
+        cfg = ConfigParser.SafeConfigParser()
+
+        cfg.add_section('Options for advanced mode')
+        cfg.set('Options for advanced mode', 'ground_file_is_resistances', 'True')
+        cfg.set('Options for advanced mode', 'remove_src_or_gnd', 'keepall')
+        cfg.set('Options for advanced mode', 'ground_file', '')
+        cfg.set('Options for advanced mode', 'use_unit_currents', 'False')
+        cfg.set('Options for advanced mode', 'source_file', '')
+        cfg.set('Options for advanced mode', 'use_direct_grounds', 'False')
+
+        cfg.add_section('Mask file')
+        cfg.set('Mask file', 'mask_file', '(Browse for a raster mask file)')
+        cfg.set('Mask file', 'use_mask', 'False')
+
+        cfg.add_section('Calculation options')
+        cfg.set('Calculation options', 'low_memory_mode', 'False')
+        cfg.set('Calculation options', 'parallelize', 'False')
+        cfg.set('Calculation options', 'solver', 'cg+amg')
+        cfg.set('Calculation options', 'print_timings', 'True')
+        cfg.set('Calculation options', 'preemptive_memory_release', 'False')
+        cfg.set('Calculation options', 'print_rusages', 'False')
+        cfg.set('Calculation options', 'max_parallel', '0')
+
+        cfg.add_section('Short circuit regions (aka polygons)')
+        cfg.set('Short circuit regions (aka polygons)', 'polygon_file', '')
+        cfg.set('Short circuit regions (aka polygons)', 'use_polygons', 'False')
+
+        cfg.add_section('Options for one-to-all and all-to-one modes')
+        cfg.set('Options for one-to-all and all-to-one modes', 'use_variable_source_strengths', 'False')
+        cfg.set('Options for one-to-all and all-to-one modes', 'variable_source_file', '')
+
+        cfg.add_section('Output options')
+        cfg.set('Output options', 'set_null_currents_to_nodata', 'False')
+        cfg.set('Output options', 'set_focal_node_currents_to_zero', 'False')
+        cfg.set('Output options', 'set_null_voltages_to_nodata', 'False')
+        cfg.set('Output options', 'compress_grids', 'False')
+        cfg.set('Output options', 'write_cur_maps', 'True')
+        cfg.set('Output options', 'write_volt_maps', 'True')
+        cfg.set('Output options', 'output_file', '')
+        cfg.set('Output options', 'write_cum_cur_map_only', 'False')
+        cfg.set('Output options', 'log_transform_maps', 'False')
+        cfg.set('Output options', 'write_max_cur_maps', 'False')
+
+        cfg.add_section('Version')
+        cfg.set('Version', 'version', self._version())
+
+        cfg.add_section('Options for reclassification of habitat data')
+        cfg.set('Options for reclassification of habitat data', 'reclass_file', '')
+        cfg.set('Options for reclassification of habitat data', 'use_reclass_table', 'False')
+
+        cfg.add_section('Logging Options')
+        cfg.set('Logging Options', 'log_level', 'INFO')
+        cfg.set('Logging Options', 'log_file', 'None')
+        cfg.set('Logging Options', 'profiler_log_file', 'None')
+        cfg.set('Logging Options', 'screenprint_log', 'False')
+
+        cfg.add_section('Options for pairwise and one-to-all and all-to-one modes')
+        cfg.set('Options for pairwise and one-to-all and all-to-one modes', 'included_pairs_file', '')
+        cfg.set('Options for pairwise and one-to-all and all-to-one modes', 'use_included_pairs', 'False')
+        cfg.set('Options for pairwise and one-to-all and all-to-one modes', 'point_file', '')
+
+        cfg.add_section('Connection scheme for raster habitat data')
+        cfg.set('Connection scheme for raster habitat data', 'connect_using_avg_resistances', 'True')
+        cfg.set('Connection scheme for raster habitat data', 'connect_four_neighbors_only', 'False')
+
+        cfg.add_section('Habitat raster or graph')
+        cfg.set('Habitat raster or graph', 'habitat_map_is_resistances', 'True')
+        cfg.set('Habitat raster or graph', 'habitat_file', '')
+
+        cfg.add_section('Circuitscape mode')
+        cfg.set('Circuitscape mode', 'data_type', 'raster')
+        cfg.set('Circuitscape mode', 'scenario', '')
+
+        iniPath = getTempFilename('.ini')
+        with open(iniPath, 'wb') as f:
+          cfg.write(f)
+
+    @staticmethod
+    def executeCircuitscape(command, progress):
+        loglines = []
+        loglines.append('Circuitscape execution console output')
+        fused_command = ''.join(['"%s" ' % c for c in command])
+        proc = subprocess.Popen(
+            fused_command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+            ).stdout
+        for line in iter(proc.readline, ''):
+            loglines.append(line)
+        ProcessingLog.addToLog(ProcessingLog.LOG_INFO, loglines)
