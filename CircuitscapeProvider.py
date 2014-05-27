@@ -31,7 +31,10 @@ from PyQt4.QtGui import *
 
 from processing.core.AlgorithmProvider import AlgorithmProvider
 from processing.core.ProcessingConfig import Setting, ProcessingConfig
+from processing.tools import system
+
 from processing_circuitscape.Circuitscape import Circuitscape
+from processing_circuitscape.CircuitscapeUtils import CircuitscapeUtils
 
 
 class CircuitscapeProvider(AlgorithmProvider):
@@ -48,8 +51,40 @@ class CircuitscapeProvider(AlgorithmProvider):
     def initializeSettings(self):
         AlgorithmProvider.initializeSettings(self)
 
+        if system.isWindows():
+            ProcessingConfig.addSetting(Setting(self.getDescription(),
+                CircuitscapeUtils.CIRCUITSCAPE_FOLDER,
+                'Circuitscape folder',
+                CircuitscapeUtils.circuitscapePath()))
+
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.FOUR_NEIGHBOURS,
+            'Connect raster cells to four neighbors instead of eight',
+            False))
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.AVERAGE_CONDUCTANCE,
+            'Use average conductance instead of resistance for connections between cells',
+            False))
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.PREEMPT_MEMORY,
+            'Preemptively release memory when possible',
+            False))
+
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.LOG_TRANSFORM,
+            'Log-transform current maps',
+            False))
+
     def unload(self):
         AlgorithmProvider.unload(self)
+
+        if system.isWindows():
+            ProcessingConfig.removeSetting(CircuitscapeUtils.CIRCUITSCAPE_FOLDER)
+
+        ProcessingConfig.removeSetting(CircuitscapeUtils.FOUR_NEIGHBOURS)
+        ProcessingConfig.removeSetting(CircuitscapeUtils.AVERAGE_CONDUCTANCE)
+        ProcessingConfig.removeSetting(CircuitscapeUtils.PREEMPT_MEMORY)
+        ProcessingConfig.removeSetting(CircuitscapeUtils.LOG_TRANSFORM)
 
     def getName(self):
         return 'Circuitscape'

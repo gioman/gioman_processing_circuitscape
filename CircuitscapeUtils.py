@@ -37,9 +37,22 @@ from processing.tools.system import *
 
 class CircuitscapeUtils:
 
-    def _version(self):
-        import circuitscape
-        return circuitscape.__version__
+    CIRCUITSCAPE_FOLDER = 'CIRCUITSCAPE_FOLDER'
+    FOUR_NEIGHBOURS = 'FOUR_NEIGHBOURS'
+    AVERAGE_CONDUCTANCE = 'AVERAGE_CONDUCTANCE'
+    PREEMPT_MEMORY = 'PREEMPT_MEMORY'
+    LOG_TRANSFORM = 'LOG_TRANSFORM'
+
+    @staticmethod
+    def circuitscapePath():
+        folder = ProcessingConfig.getSetting(self.CIRCUITSCAPE_FOLDER)
+        if folder is None:
+            folder = ''
+            if isWindows():
+                testPath = 'C:/Program Files/Circuitscape'
+                if os.path.exists(os.path.join(testPath), 'csrun.exe'):
+                    folder = testPath
+        return folder
 
     @staticmethod
     def writeConfiguration():
@@ -54,7 +67,7 @@ class CircuitscapeUtils:
         cfg.set('Options for advanced mode', 'use_direct_grounds', 'False')
 
         cfg.add_section('Mask file')
-        cfg.set('Mask file', 'mask_file', '(Browse for a raster mask file)')
+        cfg.set('Mask file', 'mask_file', '')
         cfg.set('Mask file', 'use_mask', 'False')
 
         cfg.add_section('Calculation options')
@@ -62,7 +75,8 @@ class CircuitscapeUtils:
         cfg.set('Calculation options', 'parallelize', 'False')
         cfg.set('Calculation options', 'solver', 'cg+amg')
         cfg.set('Calculation options', 'print_timings', 'True')
-        cfg.set('Calculation options', 'preemptive_memory_release', 'False')
+        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.PREEMPT_MEMORY))
+        cfg.set('Calculation options', 'preemptive_memory_release', value)
         cfg.set('Calculation options', 'print_rusages', 'False')
         cfg.set('Calculation options', 'max_parallel', '0')
 
@@ -83,11 +97,12 @@ class CircuitscapeUtils:
         cfg.set('Output options', 'write_volt_maps', 'True')
         cfg.set('Output options', 'output_file', '')
         cfg.set('Output options', 'write_cum_cur_map_only', 'False')
-        cfg.set('Output options', 'log_transform_maps', 'False')
+        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.LOG_TRANSFORM))
+        cfg.set('Output options', 'log_transform_maps', value)
         cfg.set('Output options', 'write_max_cur_maps', 'False')
 
         cfg.add_section('Version')
-        cfg.set('Version', 'version', self._version())
+        cfg.set('Version', 'version', '')
 
         cfg.add_section('Options for reclassification of habitat data')
         cfg.set('Options for reclassification of habitat data', 'reclass_file', '')
@@ -105,8 +120,10 @@ class CircuitscapeUtils:
         cfg.set('Options for pairwise and one-to-all and all-to-one modes', 'point_file', '')
 
         cfg.add_section('Connection scheme for raster habitat data')
-        cfg.set('Connection scheme for raster habitat data', 'connect_using_avg_resistances', 'True')
-        cfg.set('Connection scheme for raster habitat data', 'connect_four_neighbors_only', 'False')
+        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.AVERAGE_CONDUCTANCE))
+        cfg.set('Connection scheme for raster habitat data', 'connect_using_avg_resistances', value)
+        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.FOUR_NEIGHBOURS))
+        cfg.set('Connection scheme for raster habitat data', 'connect_four_neighbors_only', value)
 
         cfg.add_section('Habitat raster or graph')
         cfg.set('Habitat raster or graph', 'habitat_map_is_resistances', 'True')
@@ -119,6 +136,8 @@ class CircuitscapeUtils:
         iniPath = getTempFilename('.ini')
         with open(iniPath, 'wb') as f:
           cfg.write(f)
+
+        return iniPath
 
     @staticmethod
     def executeCircuitscape(command, progress):
