@@ -41,6 +41,7 @@ class CircuitscapeUtils:
     FOUR_NEIGHBOURS = 'FOUR_NEIGHBOURS'
     AVERAGE_CONDUCTANCE = 'AVERAGE_CONDUCTANCE'
     PREEMPT_MEMORY = 'PREEMPT_MEMORY'
+    COMPRESS_OUTPUT = 'COMPRESS_OUTPUT'
     LOG_TRANSFORM = 'LOG_TRANSFORM'
 
     @staticmethod
@@ -92,7 +93,8 @@ class CircuitscapeUtils:
         cfg.set('Output options', 'set_null_currents_to_nodata', 'False')
         cfg.set('Output options', 'set_focal_node_currents_to_zero', 'False')
         cfg.set('Output options', 'set_null_voltages_to_nodata', 'False')
-        cfg.set('Output options', 'compress_grids', 'False')
+        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.COMPRESS_OUTPUT))
+        cfg.set('Output options', 'compress_grids', value)
         cfg.set('Output options', 'write_cur_maps', 'True')
         cfg.set('Output options', 'write_volt_maps', 'True')
         cfg.set('Output options', 'output_file', '')

@@ -69,10 +69,13 @@ class CircuitscapeProvider(AlgorithmProvider):
             CircuitscapeUtils.PREEMPT_MEMORY,
             'Preemptively release memory when possible',
             False))
-
         ProcessingConfig.addSetting(Setting(self.getDescription(),
             CircuitscapeUtils.LOG_TRANSFORM,
             'Log-transform current maps',
+            False))
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.COMPRESS_OUTPUT,
+            'Compress output grids',
             False))
 
     def unload(self):
