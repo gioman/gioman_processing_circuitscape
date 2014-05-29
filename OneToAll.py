@@ -2,7 +2,7 @@
 
 """
 ***************************************************************************
-    Circuitscape.py
+    OneToAll.py
     ---------------------
     Date                 : May 2014
     Copyright            : (C) 2014 by Alexander Bruy
@@ -38,10 +38,11 @@ from processing.core.GeoAlgorithm import GeoAlgorithm
 from processing.core.GeoAlgorithmExecutionException import \
     GeoAlgorithmExecutionException
 
-from processing.parameters.ParameterSelection import ParameterSelection
 from processing.parameters.ParameterRaster import ParameterRaster
 from processing.parameters.ParameterBoolean import ParameterBoolean
+from processing.parameters.ParameterSelection import ParameterSelection
 from processing.parameters.ParameterString import ParameterString
+from processing.parameters.ParameterFile import ParameterFile
 from processing.outputs.OutputDirectory import OutputDirectory
 
 from processing.tools import system
@@ -49,7 +50,7 @@ from processing.tools import system
 from CircuitscapeUtils import CircuitscapeUtils
 
 
-class Circuitscape(GeoAlgorithm):
+class OneToAll(GeoAlgorithm):
 
     MODE = 'MODE'
     RESISTANCE_MAP = 'RESISTANCE_MAP'
@@ -57,20 +58,21 @@ class Circuitscape(GeoAlgorithm):
     FOCAL_NODE = 'FOCAL_NODE'
     WRITE_CURRENT_MAP = 'WRITE_CURRENT_MAP'
     WRITE_VOLTAGE_MAP = 'WRITE_VOLTAGE_MAP'
+    MASK = 'MASK'
+    SHORT_CIRCUIT = 'SHORT_CIRCUIT'
+    SOURCE_STRENGTH = 'SOURCE_STRENGTH'
     BASENAME = 'BASENAME'
     DIRECTORY = 'DIRECTORY'
 
-    MODES = ['Pairwise',
-             'One to all',
+    MODES = ['One to all',
              'All to one'
             ]
-    MODES_DICT = {0: 'pairwise',
-                  1: 'one-to-all',
-                  2: 'all-to-one'
+    MODES_DICT = {0: 'one-to-all',
+                  1: 'all-to-one'
                  }
 
     def defineCharacteristics(self):
-        self.name = 'Circuitscape (simple mode)'
+        self.name = 'One-to-all / All-to-one modelling'
         self.group = 'Circuitscape'
 
         self.addParameter(ParameterSelection(self.MODE,
@@ -85,6 +87,13 @@ class Circuitscape(GeoAlgorithm):
             'Create current map', True))
         self.addParameter(ParameterBoolean(self.WRITE_VOLTAGE_MAP,
             'Create voltage map', True))
+        self.addParameter(ParameterRaster(self.MASK,
+            'Raster mask file', optional=True))
+        self.addParameter(ParameterRaster(self.SHORT_CIRCUIT,
+            'Raster short-circuit region file', optional=True))
+        self.addParameter(ParameterRaster(self.SOURCE_STRENGTH,
+            'Source strength file', optional=True))
+
         self.addParameter(ParameterString(self.BASENAME,
             'Output basename', 'csoutput'))
 
@@ -105,6 +114,11 @@ class Circuitscape(GeoAlgorithm):
         writeCurrent = str(self.getParameterValue(self.WRITE_CURRENT_MAP))
         writeVoltage = str(self.getParameterValue(self.WRITE_VOLTAGE_MAP))
 
+        # advanced parameters
+        mask = self.getParameterValue(self.MASK)
+        shortCircuit = self.getParameterValue(self.SHORT_CIRCUIT)
+        sourceStrength = self.getParameterValue(self.SOURCE_STRENGTH)
+
         baseName = self.getParameterValue(self.BASENAME)
         directory = self.getOutputValue(self.DIRECTORY)
         progress.setInfo('basename: %s' % baseName)
@@ -123,6 +137,18 @@ class Circuitscape(GeoAlgorithm):
         cfg.set('Habitat raster or graph', 'habitat_file', resistance)
 
         cfg.set('Options for pairwise and one-to-all and all-to-one modes', 'point_file', focal)
+
+        if sourceStrength is not None:
+            cfg.set('Options for one-to-all and all-to-one modes', 'variable_source_file', sourceStrength)
+            cfg.set('Options for one-to-all and all-to-one modes', 'use_variable_source_strengths', 'True')
+
+        if mask is not None:
+            cfg.set('Mask file', 'mask_file', mask)
+            cfg.set('Mask file', 'use_mask', 'True')
+
+        if shortCircuit is not None:
+            cfg.set('Short circuit regions (aka polygons)', 'polygon_file', shortCircuit)
+            cfg.set('Short circuit regions (aka polygons)', 'use_polygons', 'True')
 
         cfg.set('Output options', 'write_cur_maps', writeCurrent)
         cfg.set('Output options', 'write_volt_maps', writeVoltage)

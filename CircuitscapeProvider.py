@@ -33,7 +33,8 @@ from processing.core.AlgorithmProvider import AlgorithmProvider
 from processing.core.ProcessingConfig import Setting, ProcessingConfig
 from processing.tools import system
 
-from processing_circuitscape.Circuitscape import Circuitscape
+from processing_circuitscape.Pairwise import Pairwise
+from processing_circuitscape.OneToAll import OneToAll
 from processing_circuitscape.CircuitscapeUtils import CircuitscapeUtils
 
 
@@ -44,7 +45,7 @@ class CircuitscapeProvider(AlgorithmProvider):
 
         self.activate = False
 
-        self.alglist = [Circuitscape()]
+        self.alglist = [Pairwise(), OneToAll()]
         for alg in self.alglist:
             alg.provider = self
 
