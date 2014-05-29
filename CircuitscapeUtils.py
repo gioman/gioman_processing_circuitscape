@@ -103,9 +103,6 @@ class CircuitscapeUtils:
         cfg.set('Output options', 'log_transform_maps', value)
         cfg.set('Output options', 'write_max_cur_maps', 'False')
 
-        cfg.add_section('Version')
-        cfg.set('Version', 'version', '')
-
         cfg.add_section('Options for reclassification of habitat data')
         cfg.set('Options for reclassification of habitat data', 'reclass_file', '')
         cfg.set('Options for reclassification of habitat data', 'use_reclass_table', 'False')
