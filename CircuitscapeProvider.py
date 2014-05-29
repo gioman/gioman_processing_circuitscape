@@ -71,6 +71,18 @@ class CircuitscapeProvider(AlgorithmProvider):
             'Preemptively release memory when possible',
             False))
         ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.MAX_CURRENT_MAPS,
+            'Write maximum of current maps',
+            False))
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.CUM_MAX_MAPS,
+            'Write cumulative & maximum current maps only',
+            False))
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.ZERO_FOCAL,
+            'Set focal nodes currents to zero',
+            False))
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
             CircuitscapeUtils.LOG_TRANSFORM,
             'Log-transform current maps',
             False))

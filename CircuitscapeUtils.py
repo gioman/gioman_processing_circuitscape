@@ -41,6 +41,9 @@ class CircuitscapeUtils:
     FOUR_NEIGHBOURS = 'FOUR_NEIGHBOURS'
     AVERAGE_CONDUCTANCE = 'AVERAGE_CONDUCTANCE'
     PREEMPT_MEMORY = 'PREEMPT_MEMORY'
+    MAX_CURRENT_MAPS = 'MAX_CURRENT_MAPS'
+    CUM_MAX_MAPS = 'CUM_MAX_MAPS'
+    ZERO_FOCAL = 'ZERO_FOCAL'
     COMPRESS_OUTPUT = 'COMPRESS_OUTPUT'
     LOG_TRANSFORM = 'LOG_TRANSFORM'
 
@@ -91,17 +94,20 @@ class CircuitscapeUtils:
 
         cfg.add_section('Output options')
         cfg.set('Output options', 'set_null_currents_to_nodata', 'False')
-        cfg.set('Output options', 'set_focal_node_currents_to_zero', 'False')
+        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.ZERO_FOCAL))
+        cfg.set('Output options', 'set_focal_node_currents_to_zero', value)
         cfg.set('Output options', 'set_null_voltages_to_nodata', 'False')
         value = str(ProcessingConfig.getSetting(CircuitscapeUtils.COMPRESS_OUTPUT))
         cfg.set('Output options', 'compress_grids', value)
         cfg.set('Output options', 'write_cur_maps', 'True')
         cfg.set('Output options', 'write_volt_maps', 'True')
         cfg.set('Output options', 'output_file', '')
-        cfg.set('Output options', 'write_cum_cur_map_only', 'False')
+        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.CUM_MAX_MAPS))
+        cfg.set('Output options', 'write_cum_cur_map_only', value)
         value = str(ProcessingConfig.getSetting(CircuitscapeUtils.LOG_TRANSFORM))
         cfg.set('Output options', 'log_transform_maps', value)
-        cfg.set('Output options', 'write_max_cur_maps', 'False')
+        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.MAX_CURRENT_MAPS))
+        cfg.set('Output options', 'write_max_cur_maps', value)
 
         cfg.add_section('Options for reclassification of habitat data')
         cfg.set('Options for reclassification of habitat data', 'reclass_file', '')
