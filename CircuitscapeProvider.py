@@ -60,6 +60,15 @@ class CircuitscapeProvider(AlgorithmProvider):
                 CircuitscapeUtils.circuitscapePath()))
 
         ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.LOG_COMMANDS,
+            'Log execution commands',
+            True))
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
+            CircuitscapeUtils.LOG_CONSOLE,
+            'Log console output',
+            True))
+
+        ProcessingConfig.addSetting(Setting(self.getDescription(),
             CircuitscapeUtils.FOUR_NEIGHBOURS,
             'Connect raster cells to four neighbors instead of eight',
             False))

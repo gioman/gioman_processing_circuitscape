@@ -26,6 +26,7 @@ __copyright__ = '(C) 2014, Alexander Bruy'
 __revision__ = '$Format:%H$'
 
 import os
+import stat
 import subprocess
 import ConfigParser
 
@@ -37,6 +38,8 @@ from processing.tools.system import *
 
 class CircuitscapeUtils:
 
+    LOG_COMMANDS = 'LOG_COMMANDS'
+    LOG_CONSOLE = 'LOG_CONSOLE'
     CIRCUITSCAPE_FOLDER = 'CIRCUITSCAPE_FOLDER'
     FOUR_NEIGHBOURS = 'FOUR_NEIGHBOURS'
     AVERAGE_CONDUCTANCE = 'AVERAGE_CONDUCTANCE'
@@ -145,10 +148,37 @@ class CircuitscapeUtils:
         return iniPath
 
     @staticmethod
+    def batchJobFilename():
+        if isWindows():
+            fileName = 'circuitscape_batch_job.bat'
+        else:
+            fileName = 'circuitscape_batch_job.sh'
+
+        batchFile = userFolder() + os.sep + fileName
+
+        return batchFile
+
+    @staticmethod
+    def createBatchJobFileFromCommands(commands):
+        batchFile = open(CircuitscapeUtils.batchJobFilename(), 'w')
+        for command in commands:
+            batchFile.write(command.encode('utf8') + '\n')
+
+        batchFile.write('exit')
+        batchFile.close()
+
+    @staticmethod
     def executeCircuitscape(command, progress):
+        if isWindows():
+            command = ['cmd.exe', '/C ', CircuitscapeUtils.batchJobFilename()]
+        else:
+            os.chmod(CircuitscapeUtils.batchJobFilename(), stat.S_IEXEC
+                     | stat.S_IREAD | stat.S_IWRITE)
+            command = [CircuitscapeUtils.batchJobFilename()]
+
+        fused_command = ''.join(['"%s" ' % c for c in command])
         loglines = []
         loglines.append('Circuitscape execution console output')
-        fused_command = ''.join(['"%s" ' % c for c in command])
         proc = subprocess.Popen(
             fused_command,
             shell=True,
@@ -159,4 +189,21 @@ class CircuitscapeUtils:
             ).stdout
         for line in iter(proc.readline, ''):
             loglines.append(line)
-        ProcessingLog.addToLog(ProcessingLog.LOG_INFO, loglines)
+
+        if ProcessingConfig.getSetting(CircuitscapeUtils.LOG_CONSOLE):
+            ProcessingLog.addToLog(ProcessingLog.LOG_INFO, loglines)
+
+        #~ loglines = []
+        #~ loglines.append('Circuitscape execution console output')
+        #~ fused_command = ''.join(['"%s" ' % c for c in command])
+        #~ proc = subprocess.Popen(
+            #~ fused_command,
+            #~ shell=True,
+            #~ stdout=subprocess.PIPE,
+            #~ stdin=subprocess.PIPE,
+            #~ stderr=subprocess.STDOUT,
+            #~ universal_newlines=True,
+            #~ ).stdout
+        #~ for line in iter(proc.readline, ''):
+            #~ loglines.append(line)
+        #~ ProcessingLog.addToLog(ProcessingLog.LOG_INFO, loglines)
