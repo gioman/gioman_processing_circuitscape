@@ -1,0 +1,182 @@
+# -*- coding: utf-8 -*-
+
+"""
+***************************************************************************
+    Advanced.py
+    ---------------------
+    Date                 : May 2014
+    Copyright            : (C) 2014 by Alexander Bruy
+    Email                : alexander dot bruy at gmail dot com
+***************************************************************************
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************
+"""
+
+__author__ = 'Alexander Bruy'
+__date__ = 'May 2014'
+__copyright__ = '(C) 2014, Alexander Bruy'
+
+# This will get replaced with a git SHA1 when you do a git archive
+
+__revision__ = '$Format:%H$'
+
+import os
+import ConfigParser
+
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
+from qgis.core import *
+
+from processing.core.Processing import Processing
+from processing.core.GeoAlgorithm import GeoAlgorithm
+from processing.core.GeoAlgorithmExecutionException import \
+    GeoAlgorithmExecutionException
+
+from processing.parameters.ParameterRaster import ParameterRaster
+from processing.parameters.ParameterBoolean import ParameterBoolean
+from processing.parameters.ParameterSelection import ParameterSelection
+from processing.parameters.ParameterString import ParameterString
+from processing.parameters.ParameterFile import ParameterFile
+from processing.outputs.OutputDirectory import OutputDirectory
+
+from processing.tools import system
+
+from CircuitscapeUtils import CircuitscapeUtils
+
+
+class Advanced(GeoAlgorithm):
+
+    RESISTANCE_MAP = 'RESISTANCE_MAP'
+    IS_CONDUCTANCES = 'IS_CONDUCTANCES'
+    CURRENT_SOURCE = 'CURRENT_SOURCE'
+    GROUND_POINT = 'GROUND_POINT'
+    GP_CONDUCTANCES = 'GP_CONDUCTANCES'
+    MODE = 'MODE'
+    UNIT_CURRENTS = 'UNIT_CURRENTS'
+    DIRECT_CONNECTIONS = 'DIRECT_CONNECTIONS'
+    WRITE_CURRENT_MAP = 'WRITE_CURRENT_MAP'
+    WRITE_VOLTAGE_MAP = 'WRITE_VOLTAGE_MAP'
+    MASK = 'MASK'
+    SHORT_CIRCUIT = 'SHORT_CIRCUIT'
+    BASENAME = 'BASENAME'
+    DIRECTORY = 'DIRECTORY'
+
+    MODES = ['Keep both when possible but remove ground if source is tied directly to ground',
+             'Remove source',
+             'Remove ground',
+             'Remove both source and ground'
+            ]
+    MODES_DICT = {0: 'keepall',
+                  1: 'rmvsrc',
+                  2: 'rmvgnd',
+                  3: 'rmvall'
+                 }
+
+    def defineCharacteristics(self):
+        self.name = 'Advanced modelling'
+        self.group = 'Circuitscape'
+
+        self.addParameter(ParameterRaster(self.RESISTANCE_MAP,
+            'Raster resistance map'))
+        self.addParameter(ParameterBoolean(self.IS_CONDUCTANCES,
+            'Data represent conductances instead of resistances', False))
+        self.addParameter(ParameterRaster(self.CURRENT_SOURCE,
+            'Current source file'))
+        self.addParameter(ParameterRaster(self.GROUND_POINT,
+            'Ground point file'))
+        self.addParameter(ParameterBoolean(self.GP_CONDUCTANCES,
+            'Data represent conductances instead of resistances to ground', False))
+        self.addParameter(ParameterSelection(self.MODE,
+            'When a source and ground are at the same node', self.MODES, 0))
+        self.addParameter(ParameterBoolean(self.UNIT_CURRENTS,
+            'Use unit currents (i = 1) for all current sources', False))
+        self.addParameter(ParameterBoolean(self.DIRECT_CONNECTIONS,
+            'Use direct connections to ground (R = 0) for all ground points', False))
+        self.addParameter(ParameterBoolean(self.WRITE_CURRENT_MAP,
+            'Create current map', True))
+        self.addParameter(ParameterBoolean(self.WRITE_VOLTAGE_MAP,
+            'Create voltage map', True))
+        self.addParameter(ParameterRaster(self.MASK,
+            'Raster mask file', optional=True))
+        self.addParameter(ParameterRaster(self.SHORT_CIRCUIT,
+            'Raster short-circuit region file', optional=True))
+        self.addParameter(ParameterString(self.BASENAME,
+            'Output basename', 'csoutput'))
+
+        self.addOutput(OutputDirectory(self.DIRECTORY, 'Output directory'))
+
+    def processAlgorithm(self, progress):
+        if system.isWindows():
+            path = CircuitscapeUtils.CircuitscapePath()
+            if path == '':
+                raise GeoAlgorithmExecutionException(
+                    'Circuitscape folder is not configured.\nPlease '
+                    'configure it before running Circuitscape algorithms.')
+
+        resistance = self.getParameterValue(self.RESISTANCE_MAP)
+        useConductance = str(not self.getParameterValue(self.IS_CONDUCTANCES))
+        currentSources = self.getParameterValue(self.CURRENT_SOURCE)
+        groundPoints = self.getParameterValue(self.GROUND_POINT)
+        gpConductance = str(not self.getParameterValue(self.GP_CONDUCTANCES))
+
+        writeCurrent = str(self.getParameterValue(self.WRITE_CURRENT_MAP))
+        writeVoltage = str(self.getParameterValue(self.WRITE_VOLTAGE_MAP))
+
+        # advanced parameters
+        mode = self.MODES_DICT[self.getParameterValue(self.MODE)]
+        unitCurrents = str(self.getParameterValue(self.UNIT_CURRENTS))
+        directConnections = str(self.getParameterValue(self.DIRECT_CONNECTIONS))
+        mask = self.getParameterValue(self.MASK)
+        shortCircuit = self.getParameterValue(self.SHORT_CIRCUIT)
+
+        baseName = self.getParameterValue(self.BASENAME)
+        directory = self.getOutputValue(self.DIRECTORY)
+        progress.setInfo('basename: %s' % baseName)
+        progress.setInfo('directory: %s' % directory)
+
+        basePath = os.path.join(directory, baseName)
+
+        iniPath = CircuitscapeUtils.writeConfiguration()
+        cfg = ConfigParser.SafeConfigParser()
+        cfg.read(iniPath)
+
+        # set parameters
+        cfg.set('Circuitscape mode', 'scenario', 'advanced')
+
+        cfg.set('Habitat raster or graph', 'habitat_map_is_resistances', useConductance)
+        cfg.set('Habitat raster or graph', 'habitat_file', resistance)
+
+        cfg.set('Options for advanced mode', 'source_file', currentSources)
+        cfg.set('Options for advanced mode', 'ground_file', groundPoints)
+        cfg.set('Options for advanced mode', 'ground_file_is_resistances', gpConductance)
+        cfg.set('Options for advanced mode', 'remove_src_or_gnd', unitCurrents)
+        cfg.set('Options for advanced mode', 'use_direct_grounds', directConnections)
+
+        if mask is not None:
+            cfg.set('Mask file', 'mask_file', mask)
+            cfg.set('Mask file', 'use_mask', 'True')
+
+        if shortCircuit is not None:
+            cfg.set('Short circuit regions (aka polygons)', 'polygon_file', shortCircuit)
+            cfg.set('Short circuit regions (aka polygons)', 'use_polygons', 'True')
+
+        cfg.set('Output options', 'write_cur_maps', writeCurrent)
+        cfg.set('Output options', 'write_volt_maps', writeVoltage)
+        cfg.set('Output options', 'output_file', basePath)
+
+        # write configuration back to file
+        with open(iniPath, 'wb') as f:
+          cfg.write(f)
+
+        if system.isWindows():
+            commands = [os.path.join(path, 'csrun.exe'), iniPath]
+        else:
+            commands = ['csrun.py', iniPath]
+
+        CircuitscapeUtils.executeCircuitscape(commands, progress)
