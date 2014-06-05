@@ -34,6 +34,8 @@ from PyQt4.QtGui import *
 from qgis.core import *
 
 from processing.core.Processing import Processing
+from processing.core.ProcessingLog import ProcessingLog
+from processing.core.ProcessingConfig import ProcessingConfig
 from processing.core.GeoAlgorithm import GeoAlgorithm
 from processing.core.GeoAlgorithmExecutionException import \
     GeoAlgorithmExecutionException
@@ -48,6 +50,8 @@ from processing.outputs.OutputDirectory import OutputDirectory
 from processing.tools import system
 
 from CircuitscapeUtils import CircuitscapeUtils
+
+sessionExportedLayers = {}
 
 
 class Advanced(GeoAlgorithm):
@@ -146,23 +150,45 @@ class Advanced(GeoAlgorithm):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read(iniPath)
 
+        commands = []
+        self.exportedLayers = {}
+        for param in self.parameters:
+            if isinstance(param, ParameterRaster):
+                if param.value is None:
+                    continue
+                value = param.value
+                if not value.lower().endswith('asc'):
+                    exportCommand = self.exportRasterLayer(value)
+                    if exportCommand is not None:
+                        commands.append(exportCommand)
+
         # set parameters
         cfg.set('Circuitscape mode', 'scenario', 'advanced')
 
         cfg.set('Habitat raster or graph', 'habitat_map_is_resistances', useConductance)
+        if resistance in self.exportedLayers.keys():
+            resistance = self.exportedLayers[resistance]
         cfg.set('Habitat raster or graph', 'habitat_file', resistance)
 
+        if currentSources in self.exportedLayers.keys():
+            currentSources = self.exportedLayers[currentSources]
         cfg.set('Options for advanced mode', 'source_file', currentSources)
+        if groundPoints in self.exportedLayers.keys():
+            groundPoints = self.exportedLayers[groundPoints]
         cfg.set('Options for advanced mode', 'ground_file', groundPoints)
         cfg.set('Options for advanced mode', 'ground_file_is_resistances', gpConductance)
         cfg.set('Options for advanced mode', 'remove_src_or_gnd', unitCurrents)
         cfg.set('Options for advanced mode', 'use_direct_grounds', directConnections)
 
         if mask is not None:
+            if mask in self.exportedLayers.keys():
+                mask = self.exportedLayers[mask]
             cfg.set('Mask file', 'mask_file', mask)
             cfg.set('Mask file', 'use_mask', 'True')
 
         if shortCircuit is not None:
+            if shortCircuit in self.exportedLayers.keys():
+                shortCircuit = self.exportedLayers[shortCircuit]
             cfg.set('Short circuit regions (aka polygons)', 'polygon_file', shortCircuit)
             cfg.set('Short circuit regions (aka polygons)', 'use_polygons', 'True')
 
@@ -175,8 +201,38 @@ class Advanced(GeoAlgorithm):
           cfg.write(f)
 
         if system.isWindows():
-            commands = [os.path.join(path, 'csrun.exe'), iniPath]
+            commands.append(os.path.join(path, 'csrun.exe') + ' ' + iniPath)
         else:
-            commands = ['csrun.py', iniPath]
+            commands.append('csrun.py ' + iniPath)
+
+        CircuitscapeUtils.createBatchJobFileFromCommands(commands)
+        loglines = []
+        loglines.append('Circuitscape execution commands')
+        for line in commands:
+            progress.setCommand(line)
+            loglines.append(line)
+
+        if ProcessingConfig.getSetting(CircuitscapeUtils.LOG_COMMANDS):
+            ProcessingLog.addToLog(ProcessingLog.LOG_INFO, loglines)
 
         CircuitscapeUtils.executeCircuitscape(commands, progress)
+
+    def exportRasterLayer(self, source):
+        global sessionExportedLayers
+
+        if source in sessionExportedLayers:
+            self.exportedLayers[source] = sessionExportedLayers[source]
+            return None
+
+        fileName = os.path.basename(source)
+        validChars = \
+            'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:'
+        fileName = ''.join(c for c in fileName if c in validChars)
+        if len(fileName) == 0:
+            fileName = 'layer'
+
+        destFilename = system.getTempFilenameInTempFolder(fileName + '.asc')
+        self.exportedLayers[source] = destFilename
+        sessionExportedLayers[source] = destFilename
+
+        return 'gdal_translate -of AAIGrid %s %s' % (source, destFilename)

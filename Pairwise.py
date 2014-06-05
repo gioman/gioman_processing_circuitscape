@@ -176,10 +176,8 @@ class Pairwise(GeoAlgorithm):
           cfg.write(f)
 
         if system.isWindows():
-            #commands = [os.path.join(path, 'csrun.exe'), iniPath]
             commands.append(os.path.join(path, 'csrun.exe') + ' ' + iniPath)
         else:
-            #commands = ['csrun.py', iniPath]
             commands.append('csrun.py ' + iniPath)
 
         CircuitscapeUtils.createBatchJobFileFromCommands(commands)

@@ -36,6 +36,7 @@ from processing.core.ProcessingLog import ProcessingLog
 from processing.core.ProcessingConfig import ProcessingConfig
 from processing.tools.system import *
 
+
 class CircuitscapeUtils:
 
     LOG_COMMANDS = 'LOG_COMMANDS'
@@ -192,18 +193,3 @@ class CircuitscapeUtils:
 
         if ProcessingConfig.getSetting(CircuitscapeUtils.LOG_CONSOLE):
             ProcessingLog.addToLog(ProcessingLog.LOG_INFO, loglines)
-
-        #~ loglines = []
-        #~ loglines.append('Circuitscape execution console output')
-        #~ fused_command = ''.join(['"%s" ' % c for c in command])
-        #~ proc = subprocess.Popen(
-            #~ fused_command,
-            #~ shell=True,
-            #~ stdout=subprocess.PIPE,
-            #~ stdin=subprocess.PIPE,
-            #~ stderr=subprocess.STDOUT,
-            #~ universal_newlines=True,
-            #~ ).stdout
-        #~ for line in iter(proc.readline, ''):
-            #~ loglines.append(line)
-        #~ ProcessingLog.addToLog(ProcessingLog.LOG_INFO, loglines)
