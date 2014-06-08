@@ -48,12 +48,11 @@ from processing.outputs.OutputDirectory import OutputDirectory
 
 from processing.tools import system
 
+from processing_circuitscape.CircuitscapeAlgorithm import CircuitscapeAlgorithm
 from CircuitscapeUtils import CircuitscapeUtils
 
-sessionExportedLayers = {}
 
-
-class Pairwise(GeoAlgorithm):
+class Pairwise(CircuitscapeAlgorithm):
 
     RESISTANCE_MAP = 'RESISTANCE_MAP'
     IS_CONDUCTANCES = 'IS_CONDUCTANCES'
@@ -66,6 +65,9 @@ class Pairwise(GeoAlgorithm):
     LOW_MEMORY = 'LOW_MEMORY'
     BASENAME = 'BASENAME'
     DIRECTORY = 'DIRECTORY'
+
+    def __init__(self):
+        CircuitscapeAlgorithm.__init__(self)
 
     def defineCharacteristics(self):
         self.name = 'Pairwise modelling'
@@ -126,17 +128,7 @@ class Pairwise(GeoAlgorithm):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read(iniPath)
 
-        commands = []
-        self.exportedLayers = {}
-        for param in self.parameters:
-            if isinstance(param, ParameterRaster):
-                if param.value is None:
-                    continue
-                value = param.value
-                if not value.lower().endswith('asc'):
-                    exportCommand = self.exportRasterLayer(value)
-                    if exportCommand is not None:
-                        commands.append(exportCommand)
+        commands = self.prepareInputs()
 
         # set parameters
         cfg.set('Circuitscape mode', 'scenario', 'pairwise')
@@ -191,23 +183,3 @@ class Pairwise(GeoAlgorithm):
             ProcessingLog.addToLog(ProcessingLog.LOG_INFO, loglines)
 
         CircuitscapeUtils.executeCircuitscape(commands, progress)
-
-    def exportRasterLayer(self, source):
-        global sessionExportedLayers
-
-        if source in sessionExportedLayers:
-            self.exportedLayers[source] = sessionExportedLayers[source]
-            return None
-
-        fileName = os.path.basename(source)
-        validChars = \
-            'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:'
-        fileName = ''.join(c for c in fileName if c in validChars)
-        if len(fileName) == 0:
-            fileName = 'layer'
-
-        destFilename = system.getTempFilenameInTempFolder(fileName + '.asc')
-        self.exportedLayers[source] = destFilename
-        sessionExportedLayers[source] = destFilename
-
-        return 'gdal_translate -of AAIGrid %s %s' % (source, destFilename)
