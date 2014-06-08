@@ -53,12 +53,12 @@ class CircuitscapeUtils:
 
     @staticmethod
     def circuitscapePath():
-        folder = ProcessingConfig.getSetting(self.CIRCUITSCAPE_FOLDER)
-        if folder is None:
+        folder = ProcessingConfig.getSetting(CircuitscapeUtils.CIRCUITSCAPE_FOLDER)
+        if folder is None or folder == '':
             folder = ''
             if isWindows():
                 testPath = 'C:/Program Files/Circuitscape'
-                if os.path.exists(os.path.join(testPath), 'csrun.exe'):
+                if os.path.exists(os.path.join(testPath, 'cs_run.exe')):
                     folder = testPath
         return folder
 

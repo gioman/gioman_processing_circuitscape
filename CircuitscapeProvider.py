@@ -107,10 +107,17 @@ class CircuitscapeProvider(AlgorithmProvider):
         if system.isWindows():
             ProcessingConfig.removeSetting(CircuitscapeUtils.CIRCUITSCAPE_FOLDER)
 
+        ProcessingConfig.removeSetting(CircuitscapeUtils.LOG_COMMANDS)
+        ProcessingConfig.removeSetting(CircuitscapeUtils.LOG_CONSOLE)
+
         ProcessingConfig.removeSetting(CircuitscapeUtils.FOUR_NEIGHBOURS)
         ProcessingConfig.removeSetting(CircuitscapeUtils.AVERAGE_CONDUCTANCE)
         ProcessingConfig.removeSetting(CircuitscapeUtils.PREEMPT_MEMORY)
+        ProcessingConfig.removeSetting(CircuitscapeUtils.MAX_CURRENT_MAPS)
+        ProcessingConfig.removeSetting(CircuitscapeUtils.CUM_MAX_MAPS)
+        ProcessingConfig.removeSetting(CircuitscapeUtils.ZERO_FOCAL)
         ProcessingConfig.removeSetting(CircuitscapeUtils.LOG_TRANSFORM)
+        ProcessingConfig.removeSetting(CircuitscapeUtils.COMPRESS_OUTPUT)
 
     def getName(self):
         return 'Circuitscape'
