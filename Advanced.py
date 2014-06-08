@@ -117,7 +117,7 @@ class Advanced(GeoAlgorithm):
 
     def processAlgorithm(self, progress):
         if system.isWindows():
-            path = CircuitscapeUtils.CircuitscapePath()
+            path = CircuitscapeUtils.circuitscapePath()
             if path == '':
                 raise GeoAlgorithmExecutionException(
                     'Circuitscape folder is not configured.\nPlease '
@@ -201,7 +201,7 @@ class Advanced(GeoAlgorithm):
           cfg.write(f)
 
         if system.isWindows():
-            commands.append(os.path.join(path, 'csrun.exe') + ' ' + iniPath)
+            commands.append('"' + os.path.join(path, 'cs_run.exe') + '" ' + iniPath)
         else:
             commands.append('csrun.py ' + iniPath)
 
