@@ -141,18 +141,22 @@ class OneToAll(CircuitscapeAlgorithm):
         # set parameters
         cfg.set('Circuitscape mode', 'scenario', mode)
 
-        cfg.set('Habitat raster or graph', 'habitat_map_is_resistances', useConductance)
+        cfg.set('Habitat raster or graph',
+            'habitat_map_is_resistances', useConductance)
         if resistance in self.exportedLayers.keys():
             resistance = self.exportedLayers[resistance]
         cfg.set('Habitat raster or graph', 'habitat_file', resistance)
 
         if focal in self.exportedLayers.keys():
             focal = self.exportedLayers[focal]
-        cfg.set('Options for pairwise and one-to-all and all-to-one modes', 'point_file', focal)
+        cfg.set('Options for pairwise and one-to-all and all-to-one modes',
+            'point_file', focal)
 
         if sourceStrength is not None:
-            cfg.set('Options for one-to-all and all-to-one modes', 'variable_source_file', sourceStrength)
-            cfg.set('Options for one-to-all and all-to-one modes', 'use_variable_source_strengths', 'True')
+            cfg.set('Options for one-to-all and all-to-one modes',
+                'variable_source_file', sourceStrength)
+            cfg.set('Options for one-to-all and all-to-one modes',
+                'use_variable_source_strengths', 'True')
 
         if mask is not None:
             if mask in self.exportedLayers.keys():
@@ -163,8 +167,10 @@ class OneToAll(CircuitscapeAlgorithm):
         if shortCircuit is not None:
             if shortCircuit in self.exportedLayers.keys():
                 shortCircuit = self.exportedLayers[shortCircuit]
-            cfg.set('Short circuit regions (aka polygons)', 'polygon_file', shortCircuit)
-            cfg.set('Short circuit regions (aka polygons)', 'use_polygons', 'True')
+            cfg.set('Short circuit regions (aka polygons)',
+                'polygon_file', shortCircuit)
+            cfg.set('Short circuit regions (aka polygons)',
+                'use_polygons', 'True')
 
         cfg.set('Output options', 'write_cur_maps', writeCurrent)
         cfg.set('Output options', 'write_volt_maps', writeVoltage)
@@ -172,10 +178,11 @@ class OneToAll(CircuitscapeAlgorithm):
 
         # write configuration back to file
         with open(iniPath, 'wb') as f:
-          cfg.write(f)
+            cfg.write(f)
 
         if system.isWindows():
-            commands.append('"' + os.path.join(path, 'cs_run.exe') + '" ' + iniPath)
+            commands.append(
+                '"' + os.path.join(path, 'cs_run.exe') + '" ' + iniPath)
         else:
             commands.append('csrun.py ' + iniPath)
 

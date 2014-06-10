@@ -74,7 +74,8 @@ class CircuitscapeProvider(AlgorithmProvider):
             False))
         ProcessingConfig.addSetting(Setting(self.getDescription(),
             CircuitscapeUtils.AVERAGE_CONDUCTANCE,
-            'Use average conductance instead of resistance for connections between cells',
+            'Use average conductance instead of resistance for connections '
+            'between cells',
             False))
         ProcessingConfig.addSetting(Setting(self.getDescription(),
             CircuitscapeUtils.PREEMPT_MEMORY,
@@ -105,7 +106,8 @@ class CircuitscapeProvider(AlgorithmProvider):
         AlgorithmProvider.unload(self)
 
         if system.isWindows():
-            ProcessingConfig.removeSetting(CircuitscapeUtils.CIRCUITSCAPE_FOLDER)
+            ProcessingConfig.removeSetting(
+                CircuitscapeUtils.CIRCUITSCAPE_FOLDER)
 
         ProcessingConfig.removeSetting(CircuitscapeUtils.LOG_COMMANDS)
         ProcessingConfig.removeSetting(CircuitscapeUtils.LOG_CONSOLE)

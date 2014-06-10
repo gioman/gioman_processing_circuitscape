@@ -72,7 +72,8 @@ class Advanced(CircuitscapeAlgorithm):
     BASENAME = 'BASENAME'
     DIRECTORY = 'DIRECTORY'
 
-    MODES = ['Keep both when possible but remove ground if source is tied directly to ground',
+    MODES = ['Keep both when possible but remove ground if source is tied '
+             'directly to ground',
              'Remove source',
              'Remove ground',
              'Remove both source and ground'
@@ -99,13 +100,15 @@ class Advanced(CircuitscapeAlgorithm):
         self.addParameter(ParameterRaster(self.GROUND_POINT,
             'Ground point file'))
         self.addParameter(ParameterBoolean(self.GP_CONDUCTANCES,
-            'Data represent conductances instead of resistances to ground', False))
+            'Data represent conductances instead of resistances to ground',
+            False))
         self.addParameter(ParameterSelection(self.MODE,
             'When a source and ground are at the same node', self.MODES, 0))
         self.addParameter(ParameterBoolean(self.UNIT_CURRENTS,
             'Use unit currents (i = 1) for all current sources', False))
         self.addParameter(ParameterBoolean(self.DIRECT_CONNECTIONS,
-            'Use direct connections to ground (R = 0) for all ground points', False))
+            'Use direct connections to ground (R = 0) for all ground points',
+            False))
         self.addParameter(ParameterBoolean(self.WRITE_CURRENT_MAP,
             'Create current map', True))
         self.addParameter(ParameterBoolean(self.WRITE_VOLTAGE_MAP,
@@ -139,7 +142,8 @@ class Advanced(CircuitscapeAlgorithm):
         # advanced parameters
         mode = self.MODES_DICT[self.getParameterValue(self.MODE)]
         unitCurrents = str(self.getParameterValue(self.UNIT_CURRENTS))
-        directConnections = str(self.getParameterValue(self.DIRECT_CONNECTIONS))
+        directConnections = str(
+            self.getParameterValue(self.DIRECT_CONNECTIONS))
         mask = self.getParameterValue(self.MASK)
         shortCircuit = self.getParameterValue(self.SHORT_CIRCUIT)
 
@@ -159,7 +163,8 @@ class Advanced(CircuitscapeAlgorithm):
         # set parameters
         cfg.set('Circuitscape mode', 'scenario', 'advanced')
 
-        cfg.set('Habitat raster or graph', 'habitat_map_is_resistances', useConductance)
+        cfg.set('Habitat raster or graph',
+            'habitat_map_is_resistances', useConductance)
         if resistance in self.exportedLayers.keys():
             resistance = self.exportedLayers[resistance]
         cfg.set('Habitat raster or graph', 'habitat_file', resistance)
@@ -170,9 +175,11 @@ class Advanced(CircuitscapeAlgorithm):
         if groundPoints in self.exportedLayers.keys():
             groundPoints = self.exportedLayers[groundPoints]
         cfg.set('Options for advanced mode', 'ground_file', groundPoints)
-        cfg.set('Options for advanced mode', 'ground_file_is_resistances', gpConductance)
+        cfg.set('Options for advanced mode',
+            'ground_file_is_resistances', gpConductance)
         cfg.set('Options for advanced mode', 'remove_src_or_gnd', unitCurrents)
-        cfg.set('Options for advanced mode', 'use_direct_grounds', directConnections)
+        cfg.set('Options for advanced mode',
+            'use_direct_grounds', directConnections)
 
         if mask is not None:
             if mask in self.exportedLayers.keys():
@@ -183,8 +190,10 @@ class Advanced(CircuitscapeAlgorithm):
         if shortCircuit is not None:
             if shortCircuit in self.exportedLayers.keys():
                 shortCircuit = self.exportedLayers[shortCircuit]
-            cfg.set('Short circuit regions (aka polygons)', 'polygon_file', shortCircuit)
-            cfg.set('Short circuit regions (aka polygons)', 'use_polygons', 'True')
+            cfg.set('Short circuit regions (aka polygons)',
+                'polygon_file', shortCircuit)
+            cfg.set('Short circuit regions (aka polygons)',
+                'use_polygons', 'True')
 
         cfg.set('Output options', 'write_cur_maps', writeCurrent)
         cfg.set('Output options', 'write_volt_maps', writeVoltage)
@@ -192,10 +201,11 @@ class Advanced(CircuitscapeAlgorithm):
 
         # write configuration back to file
         with open(iniPath, 'wb') as f:
-          cfg.write(f)
+            cfg.write(f)
 
         if system.isWindows():
-            commands.append('"' + os.path.join(path, 'cs_run.exe') + '" ' + iniPath)
+            commands.append(
+                '"' + os.path.join(path, 'cs_run.exe') + '" ' + iniPath)
         else:
             commands.append('csrun.py ' + iniPath)
 

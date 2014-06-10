@@ -53,7 +53,8 @@ class CircuitscapeUtils:
 
     @staticmethod
     def circuitscapePath():
-        folder = ProcessingConfig.getSetting(CircuitscapeUtils.CIRCUITSCAPE_FOLDER)
+        folder = ProcessingConfig.getSetting(
+            CircuitscapeUtils.CIRCUITSCAPE_FOLDER)
         if folder is None or folder == '':
             folder = ''
             if isWindows():
@@ -67,7 +68,8 @@ class CircuitscapeUtils:
         cfg = ConfigParser.SafeConfigParser()
 
         cfg.add_section('Options for advanced mode')
-        cfg.set('Options for advanced mode', 'ground_file_is_resistances', 'True')
+        cfg.set(
+            'Options for advanced mode', 'ground_file_is_resistances', 'True')
         cfg.set('Options for advanced mode', 'remove_src_or_gnd', 'keepall')
         cfg.set('Options for advanced mode', 'ground_file', '')
         cfg.set('Options for advanced mode', 'use_unit_currents', 'False')
@@ -83,39 +85,49 @@ class CircuitscapeUtils:
         cfg.set('Calculation options', 'parallelize', 'False')
         cfg.set('Calculation options', 'solver', 'cg+amg')
         cfg.set('Calculation options', 'print_timings', 'True')
-        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.PREEMPT_MEMORY))
+        value = str(
+            ProcessingConfig.getSetting(CircuitscapeUtils.PREEMPT_MEMORY))
         cfg.set('Calculation options', 'preemptive_memory_release', value)
         cfg.set('Calculation options', 'print_rusages', 'False')
         cfg.set('Calculation options', 'max_parallel', '0')
 
         cfg.add_section('Short circuit regions (aka polygons)')
         cfg.set('Short circuit regions (aka polygons)', 'polygon_file', '')
-        cfg.set('Short circuit regions (aka polygons)', 'use_polygons', 'False')
+        cfg.set('Short circuit regions (aka polygons)',
+            'use_polygons', 'False')
 
         cfg.add_section('Options for one-to-all and all-to-one modes')
-        cfg.set('Options for one-to-all and all-to-one modes', 'use_variable_source_strengths', 'False')
-        cfg.set('Options for one-to-all and all-to-one modes', 'variable_source_file', '')
+        cfg.set('Options for one-to-all and all-to-one modes',
+            'use_variable_source_strengths', 'False')
+        cfg.set('Options for one-to-all and all-to-one modes',
+            'variable_source_file', '')
 
         cfg.add_section('Output options')
         cfg.set('Output options', 'set_null_currents_to_nodata', 'False')
         value = str(ProcessingConfig.getSetting(CircuitscapeUtils.ZERO_FOCAL))
         cfg.set('Output options', 'set_focal_node_currents_to_zero', value)
         cfg.set('Output options', 'set_null_voltages_to_nodata', 'False')
-        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.COMPRESS_OUTPUT))
+        value = str(
+            ProcessingConfig.getSetting(CircuitscapeUtils.COMPRESS_OUTPUT))
         cfg.set('Output options', 'compress_grids', value)
         cfg.set('Output options', 'write_cur_maps', 'True')
         cfg.set('Output options', 'write_volt_maps', 'True')
         cfg.set('Output options', 'output_file', '')
-        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.CUM_MAX_MAPS))
+        value = str(
+            ProcessingConfig.getSetting(CircuitscapeUtils.CUM_MAX_MAPS))
         cfg.set('Output options', 'write_cum_cur_map_only', value)
-        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.LOG_TRANSFORM))
+        value = str(
+            ProcessingConfig.getSetting(CircuitscapeUtils.LOG_TRANSFORM))
         cfg.set('Output options', 'log_transform_maps', value)
-        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.MAX_CURRENT_MAPS))
+        value = str(
+            ProcessingConfig.getSetting(CircuitscapeUtils.MAX_CURRENT_MAPS))
         cfg.set('Output options', 'write_max_cur_maps', value)
 
         cfg.add_section('Options for reclassification of habitat data')
-        cfg.set('Options for reclassification of habitat data', 'reclass_file', '')
-        cfg.set('Options for reclassification of habitat data', 'use_reclass_table', 'False')
+        cfg.set('Options for reclassification of habitat data',
+            'reclass_file', '')
+        cfg.set('Options for reclassification of habitat data',
+            'use_reclass_table', 'False')
 
         cfg.add_section('Logging Options')
         cfg.set('Logging Options', 'log_level', 'INFO')
@@ -123,19 +135,28 @@ class CircuitscapeUtils:
         cfg.set('Logging Options', 'profiler_log_file', 'None')
         cfg.set('Logging Options', 'screenprint_log', 'False')
 
-        cfg.add_section('Options for pairwise and one-to-all and all-to-one modes')
-        cfg.set('Options for pairwise and one-to-all and all-to-one modes', 'included_pairs_file', '')
-        cfg.set('Options for pairwise and one-to-all and all-to-one modes', 'use_included_pairs', 'False')
-        cfg.set('Options for pairwise and one-to-all and all-to-one modes', 'point_file', '')
+        cfg.add_section(
+            'Options for pairwise and one-to-all and all-to-one modes')
+        cfg.set('Options for pairwise and one-to-all and all-to-one modes',
+            'included_pairs_file', '')
+        cfg.set('Options for pairwise and one-to-all and all-to-one modes',
+            'use_included_pairs', 'False')
+        cfg.set('Options for pairwise and one-to-all and all-to-one modes',
+            'point_file', '')
 
         cfg.add_section('Connection scheme for raster habitat data')
-        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.AVERAGE_CONDUCTANCE))
-        cfg.set('Connection scheme for raster habitat data', 'connect_using_avg_resistances', value)
-        value = str(ProcessingConfig.getSetting(CircuitscapeUtils.FOUR_NEIGHBOURS))
-        cfg.set('Connection scheme for raster habitat data', 'connect_four_neighbors_only', value)
+        value = str(
+            ProcessingConfig.getSetting(CircuitscapeUtils.AVERAGE_CONDUCTANCE))
+        cfg.set('Connection scheme for raster habitat data',
+            'connect_using_avg_resistances', value)
+        value = str(
+            ProcessingConfig.getSetting(CircuitscapeUtils.FOUR_NEIGHBOURS))
+        cfg.set('Connection scheme for raster habitat data',
+            'connect_four_neighbors_only', value)
 
         cfg.add_section('Habitat raster or graph')
-        cfg.set('Habitat raster or graph', 'habitat_map_is_resistances', 'True')
+        cfg.set('Habitat raster or graph',
+            'habitat_map_is_resistances', 'True')
         cfg.set('Habitat raster or graph', 'habitat_file', '')
 
         cfg.add_section('Circuitscape mode')
@@ -144,7 +165,7 @@ class CircuitscapeUtils:
 
         iniPath = getTempFilename('.ini')
         with open(iniPath, 'wb') as f:
-          cfg.write(f)
+            cfg.write(f)
 
         return iniPath
 
