@@ -48,7 +48,7 @@ clean:
 	rm -f *.zip
 
 package: clean all
-	cd .. && rm -f *.zip && zip -r processing_circuitscap.zip processing_circuitscape -x \*.pyc \*.ts \*.ui \*.qrc \*.pro \*~ \*.git\* \*Makefile*
+	cd .. && rm -f *.zip && zip -r processing_circuitscape.zip processing_circuitscape -x \*.pyc \*.ts \*.ui \*.qrc \*.pro \*~ \*.git\* \*Makefile*
 	mv ../processing_circuitscape.zip .
 
 upload: package
