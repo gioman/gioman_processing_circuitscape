@@ -14,7 +14,7 @@ email=alexander.bruy@gmail.com
 
 homepage=
 tracker=
-repository=
+repository=https://github.com/alexbruy/processing_circuitscape
 
 experimental=True
 deprecated=False
