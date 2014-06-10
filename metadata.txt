@@ -13,7 +13,7 @@ author=Alexander Bruy
 email=alexander.bruy@gmail.com
 
 homepage=
-tracker=
+tracker=https://github.com/alexbruy/processing_circuitscape/issues
 repository=https://github.com/alexbruy/processing_circuitscape
 
 experimental=True
