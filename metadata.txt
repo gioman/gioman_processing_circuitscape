@@ -1,10 +1,10 @@
 [general]
 name=Circuitscape for Processing
 description=Predict connectivity in heterogeneous landscapes
-about=Circuitscape is a free software package that borrows algorithms from electronic circuit theory to predict connectivity in heterogeneous landscapes. Its most common applications include modeling movement and gene flow of plants and animals, as well as identifying areas important for connectivity conservation. Developed by Alexander Bruy for Faunalia (http://faunalia.eu) funded by Prof. António Mira (University of Évora, Portugal, Unidade de Biologia da Conservação) and Dr. Rosana Peixoto PhD.
+about=Circuitscape is a free software package that borrows algorithms from electronic circuit theory to predict connectivity in heterogeneous landscapes. Its most common applications include modeling movement and gene flow of plants and animals, as well as identifying areas important for connectivity conservation. Developed by Alexander Bruy for Faunalia (http://faunalia.eu) funded by Prof. António Mira (University of Évora, Portugal, Unidade de Biologia da Conservação) and Dr. Rosana Peixoto PhD. Requires QGIS >= 2.3.0
 category=Plugins
 version=0.1.0
-qgisMinimumVersion=2.0
+qgisMinimumVersion=2.3
 
 icon=icons/circuitscape.png
 tags=analysis,processing,landscape
